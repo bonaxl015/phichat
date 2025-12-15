@@ -1,0 +1,16 @@
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 88
+
+[toll.ruff.lint]
+extend-select = [
+  "E", # pycodestyle errors
+  "F", # pyflakes
+  "I", # import sorting
+]
+ignore = [
+  "E501"
+]
