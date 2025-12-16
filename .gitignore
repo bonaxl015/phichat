@@ -11,4 +11,4 @@ venv/
 .vscode/
 dist/
 build/
-file:memdb1
+file::memory:
