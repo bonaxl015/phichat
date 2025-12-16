@@ -1,14 +1,17 @@
 run:
-		uvicorn app.main:app --reload
+	uvicorn app.main:app --reload
 
 lint:
-		ruff check .
+	ruff check .
+
+lint-fix:
+	ruff check . --fix
 
 format:
-		black .
+	black .
 
 test:
-		pytest
+	pytest
 
 install:
-		pip3 install -r requirements.txt
+	pip3 install -r requirements.txt
