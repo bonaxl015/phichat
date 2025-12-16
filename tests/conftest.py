@@ -10,7 +10,7 @@ from app.database.base import Base
 from app.models.user import User  # noqa: F401
 
 # In-memory SQLite URL
-TEST_DATABASE_URL = "sqlite+aiosqlite:///file:memdb1?mode=memory&cache=shared"
+TEST_DATABASE_URL = "sqlite+aiosqlite:///file::memory:?cache=shared"
 
 test_engine = create_async_engine(
     TEST_DATABASE_URL, echo=False, future=True, connect_args={"uri": True}
@@ -37,14 +37,12 @@ async def db():
         await conn.run_sync(Base.metadata.drop_all)
 
 
-@pytest.fixture(scope="session", autouse=True)
-def override_dependencies():
-    async def override_get_db():
-        async with TestSessionLocal() as session:
-            yield session
+@pytest.fixture(autouse=True)
+def override_db(db):
+    async def override():
+        yield db
 
-    app.dependency_overrides[get_db] = override_get_db
-    return True
+    app.dependency_overrides[get_db] = override
 
 
 @pytest.fixture
@@ -56,15 +54,18 @@ async def client():
 
     await client.aclose()
 
+
 @pytest.fixture(scope="session", autouse=True)
 def shutdown_event_loop(request):
     yield
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_engine.dispose())
 
+
 @pytest.fixture(scope="session", autouse=True)
 def fix_asyncio_warnings():
     asyncio.get_event_loop().set_debug(False)
+
 
 @pytest.fixture(scope="session", autouse=True)
 async def cleanup():
