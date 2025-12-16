@@ -8,6 +8,16 @@ from app.utils.hashing import hash_password
 class UserService:
     @staticmethod
     async def create_user(db: AsyncSession, username: str, email: str, password: str):
+        # Check if email is taken
+        existing_email = await UserService.get_user_by_email(db, email=email)
+        if existing_email:
+            raise ValueError("Email already registered")
+        
+        # Check if username is taken
+        existing_username = await UserService.get_user_by_username(db, username=username)
+        if existing_username:
+            raise ValueError("Username already taken")
+
         hashed = hash_password(password)
         user = User(username=username, email=email, hashed_password=hashed)
 
