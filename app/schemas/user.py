@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 import uuid
 
 
@@ -14,5 +14,4 @@ class UserCreate(UserBase):
 class UserRead(UserBase):
     id: uuid.UUID
 
-    class Config:
-        from_attribute = True
+    model_config = ConfigDict(from_attributes=True)
