@@ -1,18 +1,26 @@
 import pytest
+import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from httpx import AsyncClient, ASGITransport
 
+from app.main import create_app
+from app.database.connection import get_db
 from app.database.base import Base
 from app.models.user import User  # noqa: F401
 
 # In-memory SQLite URL
 TEST_DATABASE_URL = "sqlite+aiosqlite:///file:memdb1?mode=memory&cache=shared"
 
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=False, future=True, connect_args={"uri": True})
+test_engine = create_async_engine(
+    TEST_DATABASE_URL, echo=False, future=True, connect_args={"uri": True}
+)
 
 TestSessionLocal = sessionmaker(
     bind=test_engine, class_=AsyncSession, expire_on_commit=False
 )
+
+app = create_app()
 
 
 @pytest.fixture(scope="function")
@@ -27,3 +35,38 @@ async def db():
     # Drop all tables after test session
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def override_dependencies():
+    async def override_get_db():
+        async with TestSessionLocal() as session:
+            yield session
+
+    app.dependency_overrides[get_db] = override_get_db
+    return True
+
+
+@pytest.fixture
+async def client():
+    transport = ASGITransport(app=app)
+    client = AsyncClient(transport=transport, base_url="http://test")
+
+    yield client
+
+    await client.aclose()
+
+@pytest.fixture(scope="session", autouse=True)
+def shutdown_event_loop(request):
+    yield
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_engine.dispose())
+
+@pytest.fixture(scope="session", autouse=True)
+def fix_asyncio_warnings():
+    asyncio.get_event_loop().set_debug(False)
+
+@pytest.fixture(scope="session", autouse=True)
+async def cleanup():
+    yield
+    await test_engine.dispose()
