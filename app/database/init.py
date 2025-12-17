@@ -3,6 +3,7 @@ from app.database.connection import engine
 from app.database.base import Base
 
 from app.models.user import User  # noqa: F401
+from app.models.friendship import Friendship  # noqa: F401
 
 
 async def init_db():

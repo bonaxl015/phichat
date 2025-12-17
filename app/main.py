@@ -4,6 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.core.config import settings
 from app.api.v1.auth import router as auth_router
 from app.api.v1.users import router as users_router
+from app.api.v1.friends import router as friends_router
 from app.core.exceptions import AppException, DatabaseException, UnauthorizedException
 from app.core.error_handlers import (
     app_exception_handler,
@@ -22,6 +23,7 @@ def create_app():
     # Route handlers
     app.include_router(auth_router)
     app.include_router(users_router)
+    app.include_router(friends_router)
 
     # Custom exception handlers
     app.add_exception_handler(AppException, app_exception_handler)
