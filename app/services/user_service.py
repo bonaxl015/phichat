@@ -9,6 +9,7 @@ from app.core.exceptions import DatabaseException, AppException
 
 
 class UserService:
+
     @staticmethod
     async def create_user(db: AsyncSession, username: str, email: str, password: str):
         try:
