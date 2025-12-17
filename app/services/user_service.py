@@ -1,11 +1,11 @@
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import select
+from sqlalchemy import select, or_
 
 from app.models.user import User
 from app.utils.hashing import hash_password, verify_password
-from app.core.exceptions import DatabaseException
+from app.core.exceptions import DatabaseException, AppException
 
 
 class UserService:
@@ -77,5 +77,30 @@ class UserService:
                 return None
 
             return user
+        except SQLAlchemyError as e:
+            DatabaseException(str(e))
+
+    @staticmethod
+    async def search_users(
+        db: AsyncSession, query: str, exclude_user_id: str, limit: int = 20
+    ):
+        try:
+            if not query or len(query.strip()) == 0:
+                raise AppException("Search query cannot be empty")
+
+            stmt = (
+                select(User)
+                .where(
+                    or_(
+                        User.username.ilike(f"%{query}%"),
+                        User.email.ilike(f"%{query}%"),
+                    ),
+                    User.id != exclude_user_id,
+                )
+                .limit(limit)
+            )
+
+            result = await db.execute(stmt)
+            return result.scalars().all()
         except SQLAlchemyError as e:
             DatabaseException(str(e))
