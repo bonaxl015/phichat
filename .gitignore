@@ -1,14 +1,36 @@
+# Python
 __pycache__/
-.pytest_cache/
-.ruff_cache/
-.env
 *.pyc
 *.pyo
 *.pyd
+
+# Ruff
+.ruff_cache/
+
+# Env files
+.env
+.env.*
+
+# Virtual env
 venv/
 .venv/
+
+# Pytest
+.pytest_cache/
+
+# Code editor
 .idea/
 .vscode/
+
+# Build directories
 dist/
 build/
+
+# SQLite
 file::memory:
+*.db
+*.sqlite
+*.sqlite3
+
+# Alembic temp files
+*.tmp
