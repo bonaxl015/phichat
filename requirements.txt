@@ -9,6 +9,7 @@ passlib[bcrypt]
 argon2-cffi
 email-validator
 PyJWT
+alembic
 
 # for development
 black
