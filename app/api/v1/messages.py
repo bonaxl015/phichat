@@ -17,7 +17,7 @@ async def send_message(
     conversation_id: str,
     payload: MessageCreate,
     current_user=Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     conversation_uuid = await to_uuid(conversation_id)
 
@@ -25,19 +25,19 @@ async def send_message(
 
     if not conversation:
         raise AppException("Conversation not found")
-    
+
     can_access = await MessageService.can_user_access_conversation(
         db, conversation=conversation, user_id=current_user.id
     )
 
     if not can_access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed")
-    
+
     msg = await MessageService.send_message(
         db,
         conversation=conversation,
         sender_id=current_user.id,
-        content=payload.content
+        content=payload.content,
     )
 
     return msg
@@ -47,7 +47,7 @@ async def send_message(
 async def list_messages(
     conversation_id: str,
     current_user=Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     conversation_uuid = await to_uuid(conversation_id)
 
@@ -55,14 +55,14 @@ async def list_messages(
 
     if not conversation:
         raise AppException("Conversation not found")
-    
+
     can_access = await MessageService.can_user_access_conversation(
         db, conversation=conversation, user_id=current_user.id
     )
 
     if not can_access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed")
-    
+
     messages = await MessageService.list_messages(db, conv_id=conversation_uuid)
 
     return messages

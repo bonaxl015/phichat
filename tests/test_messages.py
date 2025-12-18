@@ -4,6 +4,7 @@ from app.services.user_service import UserService
 from app.services.conversation_service import ConversationService
 from app.utils.jwt import create_access_token
 
+
 @pytest.mark.asyncio
 async def test_send_message(client, db):
     # Create two users
@@ -24,11 +25,12 @@ async def test_send_message(client, db):
     res = await client.post(
         f"/api/v1/messages/{conversation.id}",
         json={"content": "Hello Bob!"},
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {token}"},
     )
 
     assert res.status_code == status.HTTP_200_OK
     assert res.json()["content"] == "Hello Bob!"
+
 
 @pytest.mark.asyncio
 async def test_list_message(client, db):
@@ -50,12 +52,12 @@ async def test_list_message(client, db):
     await client.post(
         f"/api/v1/messages/{conversation.id}",
         json={"content": "Hello Mark!"},
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {token}"},
     )
 
     res = await client.get(
         f"/api/v1/messages/{conversation.id}",
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {token}"},
     )
 
     assert res.status_code == status.HTTP_200_OK

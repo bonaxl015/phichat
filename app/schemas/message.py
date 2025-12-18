@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict, UUID4
 from app.models.message import MessageStatus
 from datetime import datetime
 
+
 class MessageRead(BaseModel):
     id: UUID4
     conversation_id: UUID4
@@ -14,6 +15,7 @@ class MessageRead(BaseModel):
     read_at: datetime | None
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class MessageCreate(BaseModel):
     content: str

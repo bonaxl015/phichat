@@ -10,7 +10,9 @@ from app.utils.uuid import to_uuid
 class MessageService:
 
     @staticmethod
-    async def can_user_access_conversation(db: AsyncSession, conversation: Conversation, user_id: str):
+    async def can_user_access_conversation(
+        db: AsyncSession, conversation: Conversation, user_id: str
+    ):
         user_uuid = await to_uuid(user_id)
         return conversation.user1_id == user_uuid or conversation.user2_id == user_uuid
 
@@ -23,7 +25,9 @@ class MessageService:
             conv_user1_uuid = await to_uuid(conversation.user1_id)
             conv_user2_uuid = await to_uuid(conversation.user2_id)
             sender_uuid = await to_uuid(sender_id)
-            receiver_uuid = conv_user1_uuid if conv_user2_uuid == sender_uuid else conv_user2_uuid
+            receiver_uuid = (
+                conv_user1_uuid if conv_user2_uuid == sender_uuid else conv_user2_uuid
+            )
 
             if not content or content.strip() == "":
                 raise AppException("Message content cannot be empty")
