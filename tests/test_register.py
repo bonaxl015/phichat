@@ -1,4 +1,5 @@
 import pytest
+from fastapi import status
 
 
 @pytest.mark.asyncio
@@ -12,7 +13,7 @@ async def test_register_user(client, db):
         },
     )
 
-    assert response.status_code == 201
+    assert response.status_code == status.HTTP_201_CREATED
     data = response.json()
     assert data["username"] == "tester"
     assert data["email"] == "tester@example.com"

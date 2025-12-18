@@ -1,4 +1,5 @@
 import pytest
+from fastapi import status
 from app.services.user_service import UserService
 from app.utils.jwt import create_access_token
 
@@ -16,7 +17,7 @@ async def test_get_me(client, db):
         "/api/v1/users/me", headers={"Authorization": f"Bearer {token}"}
     )
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
 
     assert data["id"] == str(user.id)
@@ -28,4 +29,4 @@ async def test_get_me(client, db):
 async def test_get_me_unauthorized(client):
     response = await client.get("/api/v1/users/me")
 
-    assert response.status_code == 401
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED

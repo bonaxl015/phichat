@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.models.message import Message, MessageStatus
+from app.models.conversation import Conversation
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid
 
@@ -9,13 +10,24 @@ from app.utils.uuid import to_uuid
 class MessageService:
 
     @staticmethod
+    async def can_user_access_conversation(
+        db: AsyncSession, conversation: Conversation, user_id: str
+    ):
+        user_uuid = await to_uuid(user_id)
+        return conversation.user1_id == user_uuid or conversation.user2_id == user_uuid
+
+    @staticmethod
     async def send_message(
-        db: AsyncSession, conv_id: str, sender_id: str, receiver_id: str, content: str
+        db: AsyncSession, conversation: Conversation, sender_id: str, content: str
     ):
         try:
-            conv_uuid = await to_uuid(conv_id)
+            conv_uuid = await to_uuid(conversation.id)
+            conv_user1_uuid = await to_uuid(conversation.user1_id)
+            conv_user2_uuid = await to_uuid(conversation.user2_id)
             sender_uuid = await to_uuid(sender_id)
-            receiver_uuid = await to_uuid(receiver_id)
+            receiver_uuid = (
+                conv_user1_uuid if conv_user2_uuid == sender_uuid else conv_user2_uuid
+            )
 
             if not content or content.strip() == "":
                 raise AppException("Message content cannot be empty")

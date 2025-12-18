@@ -1,4 +1,5 @@
 import pytest
+from fastapi import status
 from app.services.user_service import UserService
 from app.utils.jwt import create_access_token
 
@@ -22,7 +23,7 @@ async def test_send_and_accept_friend_request(client, db):
         headers={"Authorization": f"Bearer {token1}"},
     )
 
-    assert res.status_code == 200
+    assert res.status_code == status.HTTP_200_OK
     friendship = res.json()
 
     # User 2 accepts
@@ -31,5 +32,5 @@ async def test_send_and_accept_friend_request(client, db):
         headers={"Authorization": f"Bearer {token2}"},
     )
 
-    assert res_accept.status_code == 200
+    assert res_accept.status_code == status.HTTP_200_OK
     assert res_accept.json()["status"] == "accepted"

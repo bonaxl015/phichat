@@ -63,3 +63,12 @@ class ConversationService:
 
         result = await db.execute(stmt)
         return result.scalars().all()
+
+    @staticmethod
+    async def get_by_id(db: AsyncSession, conversation_id):
+        conversation_uuid = await to_uuid(conversation_id)
+
+        stmt = select(Conversation).where(Conversation.id == conversation_uuid)
+
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()

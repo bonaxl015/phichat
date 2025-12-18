@@ -1,4 +1,5 @@
 import pytest
+from fastapi import status
 from app.services.user_service import UserService
 from app.utils.jwt import create_access_token
 
@@ -21,7 +22,7 @@ async def test_user_search(client, db):
         "/api/v1/users/search?q=ja", headers={"Authorization": f"Bearer {token}"}
     )
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
 
     assert len(data) == 1
@@ -41,5 +42,5 @@ async def test_user_search_empty_query(client, db):
         "/api/v1/users/search?q=", headers={"Authorization": f"Bearer {token}"}
     )
 
-    assert response.status_code == 400
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "error" in response.json()

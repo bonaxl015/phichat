@@ -1,4 +1,5 @@
 import pytest
+from fastapi import status
 from app.services.user_service import UserService
 
 
@@ -13,7 +14,7 @@ async def test_login_success(client, db):
         json={"username_or_email": "tester", "password": "password123"},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert "access_token" in data
 
@@ -25,4 +26,4 @@ async def test_login_invalid_creadentials(client, db):
         json={"username_or_email": "unknown", "password": "wrongpassword"},
     )
 
-    assert response.status_code == 401
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
