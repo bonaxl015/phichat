@@ -1,4 +1,5 @@
 import pytest
+from fastapi import status
 from app.services.user_service import UserService
 from app.services.conversation_service import ConversationService
 from app.utils.jwt import create_access_token
@@ -26,7 +27,7 @@ async def test_send_message(client, db):
         headers={"Authorization": f"Bearer {token}"}
     )
 
-    assert res.status_code == 200
+    assert res.status_code == status.HTTP_200_OK
     assert res.json()["content"] == "Hello Bob!"
 
 @pytest.mark.asyncio
@@ -57,5 +58,5 @@ async def test_list_message(client, db):
         headers={"Authorization": f"Bearer {token}"}
     )
 
-    assert res.status_code == 200
+    assert res.status_code == status.HTTP_200_OK
     assert len(res.json()) == 1

@@ -1,4 +1,5 @@
 import pytest
+from fastapi import status
 from app.services.user_service import UserService
 from app.services.conversation_service import ConversationService
 from app.utils.jwt import create_access_token
@@ -21,7 +22,7 @@ async def test_start_conversation(client, db):
         headers={"Authorization": f"Bearer {token}"},
     )
 
-    assert res.status_code == 200
+    assert res.status_code == status.HTTP_200_OK
     data = res.json()
 
     assert data["user1_id"] == str(user1.id) or data["user2_id"] == str(user1.id)
@@ -49,5 +50,5 @@ async def test_list_conversation(client, db):
         "/api/v1/conversations", headers={"Authorization": f"Bearer {token}"}
     )
 
-    assert res.status_code == 200
+    assert res.status_code == status.HTTP_200_OK
     assert len(res.json()) == 1
