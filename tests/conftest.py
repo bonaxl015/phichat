@@ -9,6 +9,8 @@ from app.database.connection import get_db
 from app.database.base import Base
 from app.models.user import User  # noqa: F401
 from app.models.friendship import Friendship  # noqa: F401
+from app.models.conversation import Conversation  # noqa: F401
+from app.models.message import Message  # noqa: F401
 
 # In-memory SQLite URL
 TEST_DATABASE_URL = "sqlite+aiosqlite:///file::memory:?cache=shared"

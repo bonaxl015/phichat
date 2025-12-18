@@ -18,7 +18,7 @@ async def test_send_and_accept_friend_request(client, db):
 
     # User 1 sends request to User 2
     res = await client.post(
-        "/api/v1/friends/request?receiver_id=" + str(user2.id),
+        f"/api/v1/friends/request?receiver_id={str(user2.id)}",
         headers={"Authorization": f"Bearer {token1}"},
     )
 

@@ -1,28 +1,18 @@
-import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_
 
 from app.models.friendship import Friendship, FriendshipStatus
 from app.core.exceptions import AppException, DatabaseException
+from app.utils.uuid import to_uuid
 
 
 class FriendService:
 
     @staticmethod
-    async def _to_uuid(id_value):
-        if isinstance(id_value, uuid.UUID):
-            return id_value
-
-        try:
-            return uuid.UUID(str(id_value))
-        except Exception:
-            raise AppException("Invalid UUID format")
-
-    @staticmethod
     async def send_request(db: AsyncSession, requester_id: str, receiver_id: str):
         try:
-            requester_uuid = await FriendService._to_uuid(requester_id)
-            receiver_uuid = await FriendService._to_uuid(receiver_id)
+            requester_uuid = await to_uuid(requester_id)
+            receiver_uuid = await to_uuid(receiver_id)
 
             if requester_uuid == receiver_uuid:
                 raise AppException("You cannot add yourself as a friend")
@@ -65,8 +55,8 @@ class FriendService:
     @staticmethod
     async def accept_request(db: AsyncSession, friendship_id: str, user_id: str):
         try:
-            friendship_uuid = await FriendService._to_uuid(friendship_id)
-            user_uuid = await FriendService._to_uuid(user_id)
+            friendship_uuid = await to_uuid(friendship_id)
+            user_uuid = await to_uuid(user_id)
 
             stmt = select(Friendship).where(Friendship.id == friendship_uuid)
             result = await db.execute(stmt)
@@ -91,8 +81,8 @@ class FriendService:
     @staticmethod
     async def reject_request(db: AsyncSession, friendship_id: str, user_id: str):
         try:
-            friendship_uuid = await FriendService._to_uuid(friendship_id)
-            user_uuid = await FriendService._to_uuid(user_id)
+            friendship_uuid = await to_uuid(friendship_id)
+            user_uuid = await to_uuid(user_id)
 
             stmt = select(Friendship).where(Friendship.id == friendship_uuid)
             result = await db.execute(stmt)
@@ -116,7 +106,7 @@ class FriendService:
 
     @staticmethod
     async def list_friends(db: AsyncSession, user_id: str):
-        user_uuid = await FriendService._to_uuid(user_id)
+        user_uuid = await to_uuid(user_id)
 
         stmt = select(Friendship).where(
             and_(
@@ -133,7 +123,7 @@ class FriendService:
 
     @staticmethod
     async def list_pending(db: AsyncSession, user_id: str):
-        user_uuid = await FriendService._to_uuid(user_id)
+        user_uuid = await to_uuid(user_id)
 
         stmt = select(Friendship).where(
             and_(
