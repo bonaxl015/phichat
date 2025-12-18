@@ -32,7 +32,7 @@ async def accept_friend_request(
     )
 
 
-@router.post("/{friendship_id}/accept", response_model=FriendshipRead)
+@router.post("/{friendship_id}/reject", response_model=FriendshipRead)
 async def reject_friend_request(
     friendship_id: str,
     current_user=Depends(get_current_user),
