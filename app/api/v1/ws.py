@@ -1,6 +1,7 @@
 from fastapi import APIRouter, WebSocket
 from app.websocket.manager import ConnectionManager
 from app.websocket.deps import get_current_user_ws
+from app.websocket.events import dispatch_event
 from app.services.conversation_service import ConversationService
 from app.services.message_service import MessageService
 from app.database.connection import AsyncSessionLocal
@@ -43,32 +44,17 @@ async def websocket_chat(websocket: WebSocket, conversation_id: str):
     try:
         while True:
             data = await websocket.receive_json()
+            event_name = data.get("event")
 
-            event = data.get("event")
-
-            if event == "send_message":
-                content = data.get("content")
-
-                async with AsyncSessionLocal() as db:
-                    msg = await MessageService.send_message(
-                        db,
-                        conversation=conversation,
-                        sender_id=user.id,
-                        content=content,
-                    )
-
-                await manager.broadcast_to_conversation(
-                    str(conversation_uuid),
-                    {
-                        "event": "new_message",
-                        "data": {
-                            "id": str(msg.id),
-                            "sender_id": str(msg.sender_id),
-                            "content": msg.content,
-                            "sent_at": str(msg.sent_at),
-                        },
-                    },
-                )
+            await dispatch_event(
+                event_name=event_name,
+                data=data,
+                websocket=websocket,
+                user=user,
+                conversation=conversation,
+                conversation_id=conversation_id,
+                manager=manager,
+            )
     except Exception:
         pass
     finally:

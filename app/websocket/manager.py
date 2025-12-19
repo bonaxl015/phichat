@@ -48,3 +48,23 @@ class ConnectionManager:
                 self.conversations[conversation_id].discard(ws)
             except Exception:
                 self.conversations[conversation_id].discard(ws)
+
+    async def broadcast_typing(
+        self, conversation_id: str, user_id: str, is_typing: bool
+    ):
+        if conversation_id not in self.conversations:
+            return
+
+        message = {"event": "typing", "user_id": user_id, "is_typing": is_typing}
+
+        websockets = list(self.conversations[conversation_id])
+
+        for ws in websockets:
+            try:
+                await ws.send_json(message)
+            except WebSocketDisconnect:
+                self.conversations[conversation_id].discard(ws)
+            except RuntimeError:
+                self.conversations[conversation_id].discard(ws)
+            except Exception:
+                self.conversations[conversation_id].discard(ws)
