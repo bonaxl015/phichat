@@ -10,10 +10,7 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket, user_id: str):
         await websocket.accept()
 
-        if user_id not in self.active_users:
-            self.active_users[user_id] = set()
-
-        self.active_users[user_id].add(websocket)
+        self.active_users.setdefault(user_id, set()).add(websocket)
 
     def disconnect(self, websocket: WebSocket, user_id: str):
         if user_id in self.active_users:
@@ -23,10 +20,7 @@ class ConnectionManager:
                 del self.active_users[user_id]
 
     def join_conversation(self, websocket: WebSocket, conversation_id: str):
-        if conversation_id not in self.conversations:
-            self.conversations[conversation_id] = set()
-
-        self.conversations[conversation_id].add(websocket)
+        self.conversations.setdefault(conversation_id, set()).add(websocket)
 
     def leave_conversation(self, websocket: WebSocket, conversation_id: str):
         if conversation_id in self.conversations:
@@ -39,12 +33,11 @@ class ConnectionManager:
         if conversation_id not in self.conversations:
             return
 
-        for ws in self.conversations[conversation_id]:
+        websockets = list(self.conversations[conversation_id])
+        for ws in websockets:
             try:
                 await ws.send_json(message)
             except WebSocketDisconnect:
-                self.conversations[conversation_id].discard(ws)
-            except RuntimeError:
                 self.conversations[conversation_id].discard(ws)
             except Exception:
                 self.conversations[conversation_id].discard(ws)
@@ -52,19 +45,7 @@ class ConnectionManager:
     async def broadcast_typing(
         self, conversation_id: str, user_id: str, is_typing: bool
     ):
-        if conversation_id not in self.conversations:
-            return
-
-        message = {"event": "typing", "user_id": user_id, "is_typing": is_typing}
-
-        websockets = list(self.conversations[conversation_id])
-
-        for ws in websockets:
-            try:
-                await ws.send_json(message)
-            except WebSocketDisconnect:
-                self.conversations[conversation_id].discard(ws)
-            except RuntimeError:
-                self.conversations[conversation_id].discard(ws)
-            except Exception:
-                self.conversations[conversation_id].discard(ws)
+        await self.broadcast_to_conversation(
+            conversation_id=conversation_id,
+            message={"event": "typing", "user_id": user_id, "is_typing": is_typing},
+        )
