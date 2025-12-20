@@ -123,7 +123,9 @@ class MessageService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def edit_message(db: AsyncSession, message_id: str, user_id: str, new_content: str):
+    async def edit_message(
+        db: AsyncSession, message_id: str, user_id: str, new_content: str
+    ):
         message_uuid = await to_uuid(message_id)
         user_uuid = await to_uuid(user_id)
 
@@ -133,20 +135,20 @@ class MessageService:
 
         if not msg:
             raise AppException("Message not found")
-        
+
         if msg.sender_id != user_uuid:
             raise AppException("You cannot edit this message")
-        
+
         if msg.is_deleted:
             raise AppException("Cannot edit a deleted message")
-        
+
         msg.content = new_content
         msg.edited_at = datetime.now(UTC)
 
         await db.commit()
         await db.refresh(msg)
         return msg
-    
+
     @staticmethod
     async def delete_message(db: AsyncSession, message_id: str, user_id: str):
         message_uuid = await to_uuid(message_id)
@@ -158,10 +160,10 @@ class MessageService:
 
         if not msg:
             raise AppException("Message not found")
-        
+
         if msg.sender_id != user_uuid:
             raise AppException("You cannot edit this message")
-        
+
         msg.is_deleted = True
         msg.edited_at = datetime.now(UTC)
 

@@ -9,10 +9,7 @@ from app.websocket.handlers.receipts import (
     handle_message_delivered,
     handle_message_read,
 )
-from app.websocket.handlers.editing import (
-    handle_delete_message,
-    handle_edit_message
-)
+from app.websocket.handlers.editing import handle_delete_message, handle_edit_message
 
 
 event_handlers = {
