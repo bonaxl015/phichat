@@ -1,11 +1,12 @@
-from fastapi import WebSocket
+from fastapi import WebSocket, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.utils.jwt import decode_access_token
 from app.services.user_service import UserService
-from app.database.connection import AsyncSessionLocal
+from app.database.connection import get_db
 from app.core.exceptions import UnauthorizedException
 
 
-async def get_current_user_ws(websocket: WebSocket):
+async def get_current_user_ws(websocket: WebSocket, db: AsyncSession = Depends(get_db)):
     token = websocket.query_params.get("token")
 
     if not token:
@@ -18,8 +19,7 @@ async def get_current_user_ws(websocket: WebSocket):
 
     user_id = payload["sub"]
 
-    async with AsyncSessionLocal() as db:
-        user = await UserService.get_user_by_id(db, user_id=user_id)
+    user = await UserService.get_user_by_id(db, user_id=user_id)
 
     if not user:
         raise UnauthorizedException("User not found")

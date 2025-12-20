@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -62,3 +63,57 @@ class MessageService:
 
         result = await db.execute(stmt)
         return result.scalars().all()
+
+    @staticmethod
+    async def mark_delivered(db: AsyncSession, message_id: str, user_id: str):
+        try:
+            message_uuid = await to_uuid(message_id)
+            user_uuid = await to_uuid(user_id)
+
+            stmt = select(Message).where(Message.id == message_uuid)
+            result = await db.execute(stmt)
+            msg = result.scalar_one_or_none()
+
+            if not msg:
+                raise AppException("Message not found")
+
+            if msg.receiver_id != user_uuid:
+                raise AppException("Not allowed")
+
+            msg.status = MessageStatus.delivered
+            msg.delivered_at = datetime.now(UTC)
+
+            await db.commit()
+            await db.refresh(msg)
+            return msg
+        except AppException:
+            raise
+        except Exception as e:
+            raise DatabaseException(str(e))
+
+    @staticmethod
+    async def mark_read(db: AsyncSession, message_id: str, user_id: str):
+        try:
+            message_uuid = await to_uuid(message_id)
+            user_uuid = await to_uuid(user_id)
+
+            stmt = select(Message).where(Message.id == message_uuid)
+            result = await db.execute(stmt)
+            msg = result.scalar_one_or_none()
+
+            if not msg:
+                raise AppException("Message not found")
+
+            if msg.receiver_id != user_uuid:
+                raise AppException("Not allowed")
+
+            msg.status = MessageStatus.read
+            msg.read_at = datetime.now(UTC)
+
+            await db.commit()
+            await db.refresh(msg)
+            return msg
+        except AppException:
+            raise
+        except Exception as e:
+            raise DatabaseException(str(e))
