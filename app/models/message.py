@@ -2,7 +2,7 @@ import uuid
 import enum
 from datetime import datetime, UTC
 
-from sqlalchemy import DateTime, Text, Enum, ForeignKey
+from sqlalchemy import DateTime, Text, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -28,6 +28,7 @@ class Message(Base):
     status: Mapped[MessageStatus] = mapped_column(
         Enum(MessageStatus), default=MessageStatus.sent
     )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     sent_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
@@ -35,5 +36,8 @@ class Message(Base):
         DateTime(timezone=True), nullable=True
     )
     read_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    edited_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )

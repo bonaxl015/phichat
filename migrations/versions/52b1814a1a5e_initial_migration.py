@@ -1,8 +1,8 @@
-"""add unread conversation feature
+"""Initial migration
 
-Revision ID: 3dad097a16db
-Revises: b643a7d84018
-Create Date: 2025-12-20 21:13:27.969497
+Revision ID: 52b1814a1a5e
+Revises:
+Create Date: 2025-12-21 00:32:23.459395
 
 """
 
@@ -10,8 +10,8 @@ from typing import Sequence, Union
 
 
 # revision identifiers, used by Alembic.
-revision: str = "3dad097a16db"
-down_revision: Union[str, Sequence[str], None] = "b643a7d84018"
+revision: str = "52b1814a1a5e"
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
