@@ -4,6 +4,7 @@ from sqlalchemy import select
 
 from app.models.message import Message, MessageStatus
 from app.models.conversation import Conversation
+from app.services.unread_service import UnreadService
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid
 
@@ -44,6 +45,9 @@ class MessageService:
             db.add(msg)
             await db.commit()
             await db.refresh(msg)
+            await UnreadService.increment(
+                db=db, conversation=conversation, receiver_id=receiver_uuid
+            )
             return msg
         except AppException:
             raise

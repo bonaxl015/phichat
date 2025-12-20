@@ -4,6 +4,7 @@ from app.models.conversation import Conversation
 from app.models.user import User
 from app.websocket.manager import ConnectionManager
 from app.services.message_service import MessageService
+from app.services.unread_service import UnreadService
 
 
 async def handle_message_delivered(
@@ -43,10 +44,21 @@ async def handle_message_read(
 
     msg = await MessageService.mark_read(db, message_id=message_id, user_id=user.id)
 
+    await UnreadService.reset(db=db, conversation_id=conversation_id, user_id=user.id)
+
     await manager.broadcast_to_conversation(
         conversation_id=conversation_id,
         message={
             "event": "message_read",
             "data": {"message_id": str(msg.id), "read_at": str(msg.read_at)},
+        },
+    )
+
+    await manager.broadcast_to_conversation(
+        conversation_id=conversation_id,
+        message={
+            "event": "unread_update",
+            "conversation_id": conversation_id,
+            "unread": 0,
         },
     )

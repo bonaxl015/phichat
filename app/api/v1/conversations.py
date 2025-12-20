@@ -10,14 +10,35 @@ from app.core.exceptions import AppException
 router = APIRouter(prefix="/api/v1/conversations", tags=["Conversations"])
 
 
-@router.get("", response_model=list[ConversationRead])
+@router.get("")
 async def list_my_conversations(
     current_user=Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ):
-    conversations = await ConversationService.list_conversations(
-        db, user_id=current_user.id
+    rows = await ConversationService.list_conversations_with_unread(
+        db=db, user_id=current_user.id
     )
-    return conversations
+
+    response = []
+
+    for conv, unread_count in rows:
+        other_user = (
+            conv.user2_id if conv.user1_id == current_user.id else conv.user1_id
+        )
+
+        response.append(
+            {
+                "id": str(conv.id),
+                "user1_id": str(conv.user1_id),
+                "user2_id": str(conv.user2_id),
+                "other_user_id": str(other_user),
+                "created_at": conv.created_at.isoformat(),
+                "updated_at": conv.updated_at.isoformat(),
+                "unread_count": unread_count or 0,
+            }
+        )
+
+    print("1111111111111", response)
+    return response
 
 
 @router.post("/start", response_model=ConversationRead)

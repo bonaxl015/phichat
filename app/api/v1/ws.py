@@ -38,10 +38,10 @@ async def websocket_chat(
         return
 
     status = await manager.connect(websocket=websocket, user_id=str(user.id))
+    manager.join_conversation(websocket=websocket, conversation_id=conversation_id)
+
     if status == "online":
         await manager.broadcast_presence(str(user.id), "online")
-
-    manager.join_conversation(websocket=websocket, conversation_id=conversation_id)
 
     try:
         while True:
