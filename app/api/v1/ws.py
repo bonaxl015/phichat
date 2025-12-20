@@ -37,7 +37,10 @@ async def websocket_chat(
         await websocket.close()
         return
 
-    await manager.connect(websocket=websocket, user_id=str(user.id))
+    status = await manager.connect(websocket=websocket, user_id=str(user.id))
+    if status == "online":
+        await manager.broadcast_presence(str(user.id), "online")
+
     manager.join_conversation(websocket=websocket, conversation_id=conversation_id)
 
     try:
@@ -58,5 +61,8 @@ async def websocket_chat(
     except Exception:
         raise
     finally:
-        manager.disconnect(websocket=websocket, user_id=user.id)
+        status = manager.disconnect(websocket=websocket, user_id=user.id)
         manager.leave_conversation(websocket=websocket, conversation_id=conversation_id)
+
+        if status == "offline":
+            await manager.broadcast_presence(str(user.id), "offline")
