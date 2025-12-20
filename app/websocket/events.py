@@ -9,6 +9,11 @@ from app.websocket.handlers.receipts import (
     handle_message_delivered,
     handle_message_read,
 )
+from app.websocket.handlers.editing import (
+    handle_delete_message,
+    handle_edit_message
+)
+
 
 event_handlers = {
     "typing_start": handle_typing_start,
@@ -16,6 +21,8 @@ event_handlers = {
     "send_message": handle_send_message,
     "message_delivered": handle_message_delivered,
     "message_read": handle_message_read,
+    "message_edit": handle_delete_message,
+    "message_delete": handle_edit_message,
 }
 
 
