@@ -14,13 +14,13 @@ router = APIRouter(prefix="/api/v1/conversations", tags=["Conversations"])
 async def list_my_conversations(
     current_user=Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ):
-    rows = await ConversationService.list_conversations_with_unread(
+    rows = await ConversationService.list_conversation_full(
         db=db, user_id=current_user.id
     )
 
     response = []
 
-    for conv, unread_count in rows:
+    for conv, unread_count, msg_id, sender_id, content, sent_at in rows:
         other_user = (
             conv.user2_id if conv.user1_id == current_user.id else conv.user1_id
         )
@@ -28,16 +28,23 @@ async def list_my_conversations(
         response.append(
             {
                 "id": str(conv.id),
-                "user1_id": str(conv.user1_id),
-                "user2_id": str(conv.user2_id),
                 "other_user_id": str(other_user),
+                "unread_count": unread_count or 0,
+                "last_message": (
+                    None
+                    if msg_id is None
+                    else {
+                        "id": str(msg_id),
+                        "sender_id": str(sender_id),
+                        "content": content,
+                        "sent_at": sent_at.isoformat(),
+                    }
+                ),
                 "created_at": conv.created_at.isoformat(),
                 "updated_at": conv.updated_at.isoformat(),
-                "unread_count": unread_count or 0,
             }
         )
 
-    print("1111111111111", response)
     return response
 
 

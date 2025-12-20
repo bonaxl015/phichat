@@ -1,8 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_, and_
+from sqlalchemy import select, or_, and_, func
 
 from app.models.conversation import Conversation
 from app.models.unread import ConversationUnread
+from app.models.message import Message
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid
 
@@ -48,34 +49,41 @@ class ConversationService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def list_conversations(db: AsyncSession, user_id: str):
+    async def list_conversation_full(db: AsyncSession, user_id: str):
         user_uuid = await to_uuid(user_id)
 
-        stmt = (
-            select(Conversation)
-            .where(
-                or_(
-                    Conversation.user1_id == user_uuid,
-                    Conversation.user2_id == user_uuid,
-                )
+        last_msg_subq = (
+            select(
+                Message.conversation_id, func.max(Message.sent_at).label("last_time")
             )
-            .order_by(Conversation.created_at.desc())
+            .group_by(Message.conversation_id)
+            .subquery()
         )
 
-        result = await db.execute(stmt)
-        return result.scalars().all()
-
-    @staticmethod
-    async def list_conversations_with_unread(db: AsyncSession, user_id: str):
-        user_uuid = await to_uuid(user_id)
-
         stmt = (
-            select(Conversation, ConversationUnread.unread_count)
+            select(
+                Conversation,
+                ConversationUnread.unread_count,
+                Message.id,
+                Message.sender_id,
+                Message.content,
+                Message.sent_at,
+            )
             .outerjoin(
                 ConversationUnread,
                 and_(
-                    (ConversationUnread.conversation_id == Conversation.id),
-                    (ConversationUnread.user_id == user_uuid),
+                    ConversationUnread.conversation_id == Conversation.id,
+                    ConversationUnread.user_id == user_uuid,
+                ),
+            )
+            .outerjoin(
+                last_msg_subq, last_msg_subq.c.conversation_id == Conversation.id
+            )
+            .outerjoin(
+                Message,
+                and_(
+                    Message.conversation_id == Conversation.id,
+                    Message.sent_at == last_msg_subq.c.last_time,
                 ),
             )
             .where(
@@ -84,7 +92,7 @@ class ConversationService:
                     Conversation.user2_id == user_uuid,
                 )
             )
-            .order_by(Conversation.created_at.desc())
+            .order_by(last_msg_subq.c.last_time.desc().nullslast())
         )
 
         result = await db.execute(stmt)
