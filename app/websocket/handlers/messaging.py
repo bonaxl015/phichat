@@ -4,6 +4,7 @@ from app.models.conversation import Conversation
 from app.models.user import User
 from app.websocket.manager import ConnectionManager
 from app.services.message_service import MessageService
+from app.services.unread_service import UnreadService
 
 
 async def handle_send_message(
@@ -24,6 +25,10 @@ async def handle_send_message(
         content=content,
     )
 
+    unread = await UnreadService.get_unread(
+        db=db, conversation_id=conversation_id, user_id=msg.receiver_id
+    )
+
     await manager.broadcast_to_conversation(
         conversation_id,
         {
@@ -35,5 +40,14 @@ async def handle_send_message(
                 "content": msg.content,
                 "sent_at": str(msg.sent_at),
             },
+        },
+    )
+
+    await manager.broadcast_to_conversation(
+        conversation_id,
+        {
+            "event": "unread_update",
+            "conversation_id": conversation_id,
+            "unread": unread,
         },
     )

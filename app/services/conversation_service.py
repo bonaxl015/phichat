@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_
 
 from app.models.conversation import Conversation
+from app.models.unread import ConversationUnread
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid
 
@@ -63,6 +64,31 @@ class ConversationService:
 
         result = await db.execute(stmt)
         return result.scalars().all()
+
+    @staticmethod
+    async def list_conversations_with_unread(db: AsyncSession, user_id: str):
+        user_uuid = await to_uuid(user_id)
+
+        stmt = (
+            select(Conversation, ConversationUnread.unread_count)
+            .outerjoin(
+                ConversationUnread,
+                and_(
+                    (ConversationUnread.conversation_id == Conversation.id),
+                    (ConversationUnread.user_id == user_uuid),
+                ),
+            )
+            .where(
+                or_(
+                    Conversation.user1_id == user_uuid,
+                    Conversation.user2_id == user_uuid,
+                )
+            )
+            .order_by(Conversation.created_at.desc())
+        )
+
+        result = await db.execute(stmt)
+        return result.all()
 
     @staticmethod
     async def get_by_id(db: AsyncSession, conversation_id):
