@@ -1,8 +1,11 @@
+import asyncio
 from typing import Dict, Set
 from fastapi import WebSocket, WebSocketDisconnect
 
 
 class ConnectionManager:
+    DISCONNECT_GRACE_SECONDS = 4
+
     def __init__(self):
         # user_id -> set of websocket connections
         self.active_users: Dict[str, Set[WebSocket]] = {}
@@ -37,12 +40,18 @@ class ConnectionManager:
         count = self.presence.get(user_id, 0) - 1
 
         if count <= 0:
-            if user_id in self.presence:
-                del self.presence[user_id]
-
+            self.presence.pop(user_id, None)
             return "offline"
 
         self.presence[user_id] = count
+        return None
+
+    async def delayed_presence_check(self, user_id: str):
+        await asyncio.sleep(self.DISCONNECT_GRACE_SECONDS)
+
+        if user_id not in self.active_users:
+            return "offline"
+
         return None
 
     def join_conversation(self, websocket: WebSocket, conversation_id: str):

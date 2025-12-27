@@ -170,3 +170,9 @@ class MessageService:
         await db.commit()
         await db.refresh(msg)
         return msg
+
+    @staticmethod
+    async def list_messages_since(db: AsyncSession, user_id: str, timestamp: datetime):
+        stmt = select(Message).where(Message.sent_at > timestamp)
+        result = await db.execute(stmt)
+        return result.scalars().all()

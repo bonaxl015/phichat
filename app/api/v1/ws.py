@@ -59,10 +59,12 @@ async def websocket_chat(
                 db=db,
             )
     except Exception:
-        raise
+        pass
     finally:
         status = manager.disconnect(websocket=websocket, user_id=user.id)
         manager.leave_conversation(websocket=websocket, conversation_id=conversation_id)
 
         if status == "offline":
-            await manager.broadcast_presence(str(user.id), "offline")
+            result = await manager.delayed_presence_check(str(user.id))
+            if result == "offline":
+                await manager.broadcast_presence(str(user.id), "offline")
