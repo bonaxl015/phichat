@@ -5,6 +5,7 @@ from app.models.user import User
 from app.websocket.manager import ConnectionManager
 from app.services.message_service import MessageService
 from app.services.unread_service import UnreadService
+from app.api.v1.ws_notifications import notifications
 
 
 async def handle_message_delivered(
@@ -62,3 +63,23 @@ async def handle_message_read(
             "unread": 0,
         },
     )
+
+    receiver_id_str = str(msg.receiver_id)
+    conversation_room = manager.conversations.get(conversation_id, set())
+    receiver_is_in_room = any(
+        ws in conversation_room
+        for ws in manager.active_users.get(receiver_id_str, set())
+    )
+
+    if not receiver_is_in_room:
+        await notifications.send_notifications(
+            receiver_id_str,
+            {
+                "event": "notification",
+                "type": "message_read",
+                "conversation_id": conversation_id,
+                "from_user_id": str(user.id),
+                "preview": msg.content,
+                "sent_at": msg.sent_at.isoformat(),
+            },
+        )

@@ -4,6 +4,7 @@ from fastapi import WebSocket
 from app.models.conversation import Conversation
 from app.models.user import User
 from app.websocket.manager import ConnectionManager
+from app.api.v1.ws_notifications import notifications
 
 
 async def handle_edit_message(
@@ -34,6 +35,26 @@ async def handle_edit_message(
         },
     )
 
+    receiver_id_str = str(msg.receiver_id)
+    conversation_room = manager.conversations.get(conversation_id, set())
+    receiver_is_in_room = any(
+        ws in conversation_room
+        for ws in manager.active_users.get(receiver_id_str, set())
+    )
+
+    if not receiver_is_in_room:
+        await notifications.send_notifications(
+            receiver_id_str,
+            {
+                "event": "notification",
+                "type": "message_edit",
+                "conversation_id": conversation_id,
+                "from_user_id": str(user.id),
+                "preview": msg.content,
+                "sent_at": msg.sent_at.isoformat(),
+            },
+        )
+
 
 async def handle_delete_message(
     data: dict,
@@ -54,3 +75,23 @@ async def handle_delete_message(
         conversation_id=conversation_id,
         message={"event": "message_deleted", "data": {"id": str(msg.id)}},
     )
+
+    receiver_id_str = str(msg.receiver_id)
+    conversation_room = manager.conversations.get(conversation_id, set())
+    receiver_is_in_room = any(
+        ws in conversation_room
+        for ws in manager.active_users.get(receiver_id_str, set())
+    )
+
+    if not receiver_is_in_room:
+        await notifications.send_notifications(
+            receiver_id_str,
+            {
+                "event": "notification",
+                "type": "message_delete",
+                "conversation_id": conversation_id,
+                "from_user_id": str(user.id),
+                "preview": msg.content,
+                "sent_at": msg.sent_at.isoformat(),
+            },
+        )

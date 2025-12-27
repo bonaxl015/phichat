@@ -1,9 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_
+from datetime import datetime, UTC
 
 from app.models.friendship import Friendship, FriendshipStatus
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid
+from app.api.v1.ws_notifications import notifications
 
 
 class FriendService:
@@ -46,6 +48,18 @@ class FriendService:
             db.add(friendship)
             await db.commit()
             await db.refresh(friendship)
+
+            await notifications.send_notifications(
+                str(receiver_uuid),
+                {
+                    "event": "notification",
+                    "type": "friend_request",
+                    "from_user_id": str(requester_uuid),
+                    "friendship_id": str(friendship.id),
+                    "created_at": datetime.now(UTC).isoformat(),
+                },
+            )
+
             return friendship
         except AppException:
             raise
@@ -72,6 +86,17 @@ class FriendService:
             await db.commit()
             await db.refresh(friendship)
 
+            await notifications.send_notifications(
+                str(friendship.requester_id),
+                {
+                    "event": "notification",
+                    "type": "friend_request",
+                    "from_user_id": str(friendship.requester_id),
+                    "friendship_id": str(friendship.id),
+                    "created_at": datetime.now(UTC).isoformat(),
+                },
+            )
+
             return friendship
         except AppException:
             raise
@@ -97,6 +122,17 @@ class FriendService:
             friendship.status = FriendshipStatus.rejected
             await db.commit()
             await db.refresh(friendship)
+
+            await notifications.send_notifications(
+                str(friendship.receiver_id),
+                {
+                    "event": "notification",
+                    "type": "friend_request",
+                    "from_user_id": str(friendship.receiver_id),
+                    "friendship_id": str(friendship.id),
+                    "created_at": datetime.now(UTC).isoformat(),
+                },
+            )
 
             return friendship
         except AppException:
