@@ -5,6 +5,7 @@ from app.models.user import User
 from app.websocket.manager import ConnectionManager
 from app.services.message_service import MessageService
 from app.services.unread_service import UnreadService
+from app.api.v1.ws_notifications import notifications
 
 
 async def handle_send_message(
@@ -29,6 +30,8 @@ async def handle_send_message(
         db=db, conversation_id=conversation_id, user_id=msg.receiver_id
     )
 
+    receiver_id_str = str(msg.receiver_id)
+
     await manager.broadcast_to_conversation(
         conversation_id,
         {
@@ -36,12 +39,31 @@ async def handle_send_message(
             "data": {
                 "id": str(msg.id),
                 "sender_id": str(msg.sender_id),
-                "receiver_id": str(msg.receiver_id),
+                "receiver_id": receiver_id_str,
                 "content": msg.content,
                 "sent_at": str(msg.sent_at),
             },
         },
     )
+
+    conversation_room = manager.conversations.get(conversation_id, set())
+    receiver_is_in_room = any(
+        ws in conversation_room
+        for ws in manager.active_users.get(receiver_id_str, set())
+    )
+
+    if not receiver_is_in_room:
+        await notifications.send_notifications(
+            receiver_id_str,
+            {
+                "event": "notification",
+                "type": "message",
+                "conversation_id": conversation_id,
+                "from_user_id": str(user.id),
+                "preview": msg.content,
+                "sent_at": msg.sent_at.isoformat(),
+            },
+        )
 
     await manager.broadcast_to_conversation(
         conversation_id,
