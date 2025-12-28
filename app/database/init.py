@@ -7,6 +7,7 @@ from app.models.friendship import Friendship  # noqa: F401
 from app.models.conversation import Conversation  # noqa: F401
 from app.models.message import Message  # noqa: F401
 from app.models.unread import ConversationUnread  # noqa: F401
+from app.models.conversation_settings import ConversationSettings  # noqa: F401
 
 
 async def init_db():

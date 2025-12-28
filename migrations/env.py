@@ -12,6 +12,8 @@ from app.models.friendship import Friendship  # noqa
 from app.models.conversation import Conversation  # noqa
 from app.models.message import Message  # noqa
 from app.models.unread import ConversationUnread  # noqa
+from app.models.conversation_settings import ConversationSettings  # noqa: F401
+
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
