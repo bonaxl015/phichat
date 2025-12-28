@@ -67,4 +67,9 @@ async def websocket_chat(
         if status == "offline":
             result = await manager.delayed_presence_check(str(user.id))
             if result == "offline":
+                from datetime import datetime, UTC
+
+                user.last_seen = datetime.now(UTC)
+                await db.commit()
+
                 await manager.broadcast_presence(str(user.id), "offline")
