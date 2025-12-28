@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, UUID4
+from datetime import datetime
 
 
 class UserBase(BaseModel):
@@ -12,5 +13,6 @@ class UserCreate(UserBase):
 
 class UserRead(UserBase):
     id: UUID4
+    last_seen: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
