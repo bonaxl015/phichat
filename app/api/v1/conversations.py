@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.conversation import ConversationRead
 from app.services.conversation_service import ConversationService
+from app.services.conversation_settings_service import ConversationSettingsService
 from app.api.deps.auth import get_current_user
 from app.database.connection import get_db
 from app.core.exceptions import AppException
@@ -20,7 +21,16 @@ async def list_my_conversations(
 
     response = []
 
-    for conv, unread_count, msg_id, sender_id, content, sent_at in rows:
+    for (
+        conv,
+        unread_count,
+        msg_id,
+        sender_id,
+        content,
+        sent_at,
+        is_muted,
+        is_pinned,
+    ) in rows:
         other_user = (
             conv.user2_id if conv.user1_id == current_user.id else conv.user1_id
         )
@@ -30,6 +40,8 @@ async def list_my_conversations(
                 "id": str(conv.id),
                 "other_user_id": str(other_user),
                 "unread_count": unread_count or 0,
+                "is_muted": is_muted or False,
+                "is_pinned": is_pinned or False,
                 "last_message": (
                     None
                     if msg_id is None
@@ -62,3 +74,55 @@ async def start_conversations(
     )
 
     return conversation
+
+
+@router.post("/{conversation_id}/mute")
+async def mute_conversation(
+    conversation_id: str,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    settings = await ConversationSettingsService.toggle_mute(
+        db=db, conversation_id=conversation_id, user_id=current_user.id, mute=True
+    )
+
+    return {"muted": settings.is_muted}
+
+
+@router.post("/{conversation_id}/unmute")
+async def unmute_conversation(
+    conversation_id: str,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    settings = await ConversationSettingsService.toggle_mute(
+        db=db, conversation_id=conversation_id, user_id=current_user.id, mute=False
+    )
+
+    return {"muted": settings.is_muted}
+
+
+@router.post("/{conversation_id}/pin")
+async def pin_conversation(
+    conversation_id: str,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    settings = await ConversationSettingsService.toggle_pin(
+        db=db, conversation_id=conversation_id, user_id=current_user.id, pin=True
+    )
+
+    return {"pinned": settings.is_pinned}
+
+
+@router.post("/{conversation_id}/unpin")
+async def unpin_conversation(
+    conversation_id: str,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    settings = await ConversationSettingsService.toggle_pin(
+        db=db, conversation_id=conversation_id, user_id=current_user.id, pin=False
+    )
+
+    return {"pinned": settings.is_pinned}

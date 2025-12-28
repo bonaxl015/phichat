@@ -3,6 +3,7 @@ from sqlalchemy import select, or_, and_, func
 
 from app.models.conversation import Conversation
 from app.models.unread import ConversationUnread
+from app.models.conversation_settings import ConversationSettings
 from app.models.message import Message
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid
@@ -68,6 +69,8 @@ class ConversationService:
                 Message.sender_id,
                 Message.content,
                 Message.sent_at,
+                ConversationSettings.is_muted,
+                ConversationSettings.is_pinned,
             )
             .outerjoin(
                 ConversationUnread,
@@ -86,13 +89,23 @@ class ConversationService:
                     Message.sent_at == last_msg_subq.c.last_time,
                 ),
             )
+            .outerjoin(
+                ConversationSettings,
+                and_(
+                    ConversationSettings.conversation_id == Conversation.id,
+                    ConversationSettings.user_id == user_uuid,
+                ),
+            )
             .where(
                 or_(
                     Conversation.user1_id == user_uuid,
                     Conversation.user2_id == user_uuid,
                 )
             )
-            .order_by(last_msg_subq.c.last_time.desc().nullslast())
+            .order_by(
+                ConversationSettings.is_pinned.desc().nullslast(),
+                last_msg_subq.c.last_time.desc().nullslast(),
+            )
         )
 
         result = await db.execute(stmt)
