@@ -5,7 +5,7 @@ from datetime import datetime, UTC
 from app.models.friendship import Friendship, FriendshipStatus
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid
-from app.api.v1.ws_notifications import notifications
+from app.websocket.state import notification_manager
 
 
 class FriendService:
@@ -49,7 +49,7 @@ class FriendService:
             await db.commit()
             await db.refresh(friendship)
 
-            await notifications.send_notifications(
+            await notification_manager.send_notifications(
                 str(receiver_uuid),
                 {
                     "event": "notification",
@@ -86,7 +86,7 @@ class FriendService:
             await db.commit()
             await db.refresh(friendship)
 
-            await notifications.send_notifications(
+            await notification_manager.send_notifications(
                 str(friendship.requester_id),
                 {
                     "event": "notification",
@@ -123,7 +123,7 @@ class FriendService:
             await db.commit()
             await db.refresh(friendship)
 
-            await notifications.send_notifications(
+            await notification_manager.send_notifications(
                 str(friendship.receiver_id),
                 {
                     "event": "notification",

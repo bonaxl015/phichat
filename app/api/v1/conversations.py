@@ -60,6 +60,19 @@ async def list_my_conversations(
     return response
 
 
+@router.get("/{conversation_id}")
+async def get_conversation_info(
+    conversation_id: str,
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    data = await ConversationService.get_conversation_info(
+        db=db, conversation_id=conversation_id, user_id=current_user.id
+    )
+
+    return data
+
+
 @router.post("/start", response_model=ConversationRead)
 async def start_conversations(
     other_user_id: str = Query(...),

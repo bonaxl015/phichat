@@ -1,3 +1,4 @@
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_, func
 
@@ -6,6 +7,10 @@ from app.models.unread import ConversationUnread
 from app.models.conversation_settings import ConversationSettings
 from app.models.message import Message
 from app.core.exceptions import AppException, DatabaseException
+from app.services.conversation_settings_service import ConversationSettingsService
+from app.services.unread_service import UnreadService
+from app.services.user_service import UserService
+from app.websocket.state import connection_manager
 from app.utils.uuid import to_uuid
 
 
@@ -112,10 +117,80 @@ class ConversationService:
         return result.all()
 
     @staticmethod
-    async def get_by_id(db: AsyncSession, conversation_id):
+    async def get_by_id(db: AsyncSession, conversation_id: str):
         conversation_uuid = await to_uuid(conversation_id)
 
         stmt = select(Conversation).where(Conversation.id == conversation_uuid)
 
         result = await db.execute(stmt)
         return result.scalar_one_or_none()
+
+    @staticmethod
+    async def get_conversation_info(
+        db: AsyncSession, conversation_id: str, user_id: str
+    ):
+        user_uuid = await to_uuid(user_id)
+        conversation_uuid = await to_uuid(conversation_id)
+
+        conversation = await ConversationService.get_by_id(
+            db=db, conversation_id=conversation_id
+        )
+        if not conversation:
+            raise AppException("Conversation not found")
+
+        if conversation.user1_id != user_uuid and conversation.user2_id != user_uuid:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed"
+            )
+
+        other_user_id = (
+            conversation.user2_id
+            if conversation.user1_id == user_uuid
+            else conversation.user1_id
+        )
+        other_user = await UserService.get_user_by_id(db=db, user_id=other_user_id)
+
+        unread = await UnreadService.get_unread(
+            db=db, conversation_id=conversation_id, user_id=user_uuid
+        )
+
+        settings = await ConversationSettingsService.get_or_create(
+            db=db, conversation_id=conversation_id, user_id=user_uuid
+        )
+
+        query = (
+            select(Message)
+            .where(Message.conversation_id == conversation_uuid)
+            .order_by(Message.sent_at.desc())
+            .limit(1)
+        )
+        result = await db.execute(query)
+        last_message = result.scalar_one_or_none()
+
+        return {
+            "conversation_id": str(conversation.id),
+            "other_user": {
+                "id": str(other_user.id),
+                "username": other_user.username,
+                "email": other_user.email,
+                "is_online": str(other_user.id) in connection_manager.active_users,
+                "last_seen": (
+                    other_user.last_seen.isoformat() if other_user.last_seen else None
+                ),
+            },
+            "unread_count": unread or 0,
+            "is_muted": settings.is_muted,
+            "is_pinned": settings.is_pinned,
+            "last_message": (
+                None
+                if not last_message
+                else {
+                    "id": str(last_message.id),
+                    "sender_id": str(last_message.sender_id),
+                    "content": last_message.content,
+                    "sent_at": last_message.sent_at.isoformat(),
+                }
+            ),
+            "created_at": conversation.created_at.isoformat(),
+            "updated_at": conversation.updated_at.isoformat(),
+        }

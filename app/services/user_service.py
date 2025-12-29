@@ -1,4 +1,3 @@
-import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select, or_
@@ -6,6 +5,7 @@ from sqlalchemy import select, or_
 from app.models.user import User
 from app.utils.hashing import hash_password, verify_password
 from app.core.exceptions import DatabaseException, AppException
+from app.utils.uuid import to_uuid
 
 
 class UserService:
@@ -55,8 +55,10 @@ class UserService:
 
     @staticmethod
     async def get_user_by_id(db: AsyncSession, user_id: str):
+        user_uuid = await to_uuid(user_id)
+
         try:
-            query = select(User).where(User.id == uuid.UUID(user_id))
+            query = select(User).where(User.id == user_uuid)
             result = await db.execute(query)
             return result.scalar_one_or_none()
         except SQLAlchemyError as e:

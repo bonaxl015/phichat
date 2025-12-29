@@ -5,7 +5,7 @@ from app.models.user import User
 from app.websocket.manager import ConnectionManager
 from app.services.message_service import MessageService
 from app.services.unread_service import UnreadService
-from app.api.v1.ws_notifications import notifications
+from app.websocket.state import notification_manager
 
 
 async def handle_send_message(
@@ -53,7 +53,7 @@ async def handle_send_message(
     )
 
     if not receiver_is_in_room:
-        await notifications.send_notifications(
+        await notification_manager.send_notifications(
             receiver_id_str,
             {
                 "event": "notification",
