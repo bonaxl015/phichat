@@ -4,7 +4,7 @@ from fastapi import WebSocket
 from app.models.conversation import Conversation
 from app.models.user import User
 from app.websocket.manager import ConnectionManager
-from app.api.v1.ws_notifications import notifications
+from app.websocket.state import notification_manager
 
 
 async def handle_edit_message(
@@ -43,7 +43,7 @@ async def handle_edit_message(
     )
 
     if not receiver_is_in_room:
-        await notifications.send_notifications(
+        await notification_manager.send_notifications(
             receiver_id_str,
             {
                 "event": "notification",
@@ -84,7 +84,7 @@ async def handle_delete_message(
     )
 
     if not receiver_is_in_room:
-        await notifications.send_notifications(
+        await notification_manager.send_notifications(
             receiver_id_str,
             {
                 "event": "notification",
