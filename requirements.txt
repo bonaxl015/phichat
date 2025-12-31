@@ -22,3 +22,4 @@ pytest-asyncio
 httpx
 aiosqlite
 types-passlib
+mypy
