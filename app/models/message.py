@@ -6,7 +6,7 @@ from sqlalchemy import DateTime, Text, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
-from app.database.types import GUID
+from app.database.custom_types import GUID
 
 
 class MessageStatus(str, enum.Enum):

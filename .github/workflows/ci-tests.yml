@@ -16,6 +16,13 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
+    env:
+      APP_NAME: "PhiChat"
+      APP_ENV: "test"
+      DATABASE_URL: "sqlite+aiosqlite:///file::memory:?cache=shared"
+      SECRET_KEY: ""
+      ACCESS_TOKEN_EXPIRE_MINUTES: 3600
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
