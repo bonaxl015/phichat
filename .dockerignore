@@ -1,0 +1,48 @@
+# Virtual environments
+venv/
+.venv/
+env/
+.env*
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# OS Files
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# Docker
+.dockerignore
+Dockerfile
+
+# Alembic migrations cache
+migrations/__pycache__
+
+# Logs
+*.log
+
+# Test cache
+-pytest_cache/
+htmlcov/
+.coverage
+
+# Cache dirs
+.cache/
