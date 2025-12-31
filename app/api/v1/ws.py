@@ -47,7 +47,7 @@ async def websocket_chat(
     try:
         while True:
             data = await websocket.receive_json()
-            event_name: str = data.get("event")
+            event_name: str = str(data.get("event"))
 
             await dispatch_event(
                 event_name=event_name,

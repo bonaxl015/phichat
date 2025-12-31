@@ -16,8 +16,8 @@ async def handle_edit_message(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    message_id: str = data.get("message_id")
-    content: str = data.get("content")
+    message_id: str = str(data.get("message_id"))
+    content: str = str(data.get("content"))
 
     msg = await MessageService.edit_message(
         db=db, message_id=message_id, user_id=user.id, new_content=content
@@ -65,7 +65,7 @@ async def handle_delete_message(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    message_id: str = data.get("message_id")
+    message_id: str = str(data.get("message_id"))
 
     msg = await MessageService.delete_message(
         db=db, message_id=message_id, user_id=user.id

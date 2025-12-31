@@ -1,5 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from typing import Callable, cast
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
+from starlette.responses import Response
 from sqlalchemy.exc import SQLAlchemyError
 from app.core.config import settings
 from app.api.v1.auth import router as auth_router
@@ -34,13 +36,34 @@ def create_app():
     app.include_router(ws_notifications_router)
 
     # Custom exception handlers
-    app.add_exception_handler(AppException, app_exception_handler)
-    app.add_exception_handler(UnauthorizedException, unauthorized_exception_handler)
-    app.add_exception_handler(DatabaseException, database_exception_handler)
-    app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    app.add_exception_handler(HTTPException, http_exception_handler)
-    app.add_exception_handler(Exception, unexpected_exception_handler)
+    app.add_exception_handler(
+        AppException,
+        cast(Callable[[Request, Exception], Response], app_exception_handler),
+    )
+    app.add_exception_handler(
+        UnauthorizedException,
+        cast(Callable[[Request, Exception], Response], unauthorized_exception_handler),
+    )
+    app.add_exception_handler(
+        DatabaseException,
+        cast(Callable[[Request, Exception], Response], database_exception_handler),
+    )
+    app.add_exception_handler(
+        SQLAlchemyError,
+        cast(Callable[[Request, Exception], Response], sqlalchemy_exception_handler),
+    )
+    app.add_exception_handler(
+        RequestValidationError,
+        cast(Callable[[Request, Exception], Response], validation_exception_handler),
+    )
+    app.add_exception_handler(
+        HTTPException,
+        cast(Callable[[Request, Exception], Response], http_exception_handler),
+    )
+    app.add_exception_handler(
+        Exception,
+        cast(Callable[[Request, Exception], Response], unexpected_exception_handler),
+    )
 
     @app.get("/health")
     async def health_check():

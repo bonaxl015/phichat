@@ -18,7 +18,7 @@ async def handle_reconnect(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    last_ts = datetime(data.get("last_message_at"))
+    last_ts = datetime.strptime(str(data.get("last_message_at")), "%Y-%m-%d %H:%M:%S")
 
     missed = await MessageService.list_messages_since(
         db, user_id=user.id, timestamp=last_ts

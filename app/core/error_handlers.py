@@ -1,40 +1,52 @@
+from typing import Awaitable
 from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
+from starlette.responses import Response
 
 from app.core.exceptions import AppException, DatabaseException, UnauthorizedException
 
 
-async def app_exception_handler(request: Request, exc: AppException):
+async def app_exception_handler(
+    request: Request, exc: AppException
+) -> Response | Awaitable[Response]:
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={"error": exc.message, "details": exc.message},
     )
 
 
-async def unauthorized_exception_handler(request: Request, exc: UnauthorizedException):
+async def unauthorized_exception_handler(
+    request: Request, exc: UnauthorizedException
+) -> Response | Awaitable[Response]:
     return JSONResponse(
         status_code=status.HTTP_401_UNAUTHORIZED,
         content={"error": "Unauthorized", "details": exc.message},
     )
 
 
-async def database_exception_handler(request: Request, exc: DatabaseException):
+async def database_exception_handler(
+    request: Request, exc: DatabaseException
+) -> Response | Awaitable[Response]:
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"error": "Database error", "details": exc.message},
     )
 
 
-async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
+async def sqlalchemy_exception_handler(
+    request: Request, exc: SQLAlchemyError
+) -> Response | Awaitable[Response]:
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"error": "Database error", "details": "Database operation failed"},
     )
 
 
-async def validation_exception_handler(request: Request, exc: ValidationError):
+async def validation_exception_handler(
+    request: Request, exc: ValidationError
+) -> Response | Awaitable[Response]:
     details = list(map(lambda err: err["msg"], exc.errors()))
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -42,14 +54,18 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     )
 
 
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(
+    request: Request, exc: HTTPException
+) -> Response | Awaitable[Response]:
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": "HTTP exception error", "details": exc.detail},
     )
 
 
-async def unexpected_exception_handler(request: Request, exc: Exception):
+async def unexpected_exception_handler(
+    request: Request, exc: Exception
+) -> Response | Awaitable[Response]:
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"error": "Error", "details": "An unexpected error occurred"},

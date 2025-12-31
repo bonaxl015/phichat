@@ -17,7 +17,7 @@ async def handle_message_delivered(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    message_id: str = data.get("message_id")
+    message_id: str = str(data.get("message_id"))
 
     msg = await MessageService.mark_delivered(
         db, message_id=message_id, user_id=user.id
@@ -41,7 +41,7 @@ async def handle_message_read(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    message_id: str = data.get("message_id")
+    message_id: str = str(data.get("message_id"))
 
     msg = await MessageService.mark_read(db, message_id=message_id, user_id=user.id)
 
