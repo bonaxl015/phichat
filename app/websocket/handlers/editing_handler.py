@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.message_service import MessageService
 from fastapi import WebSocket
-from app.models.conversation import Conversation
-from app.models.user import User
+from app.models.conversation_model import Conversation
+from app.models.user_model import User
 from app.websocket.manager import ConnectionManager
 from app.websocket.state import notification_manager
 
@@ -16,8 +16,8 @@ async def handle_edit_message(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    message_id = data.get("message_id")
-    content = data.get("content")
+    message_id: str = str(data.get("message_id"))
+    content: str = str(data.get("content"))
 
     msg = await MessageService.edit_message(
         db=db, message_id=message_id, user_id=user.id, new_content=content
@@ -65,7 +65,7 @@ async def handle_delete_message(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    message_id = data.get("message_id")
+    message_id: str = str(data.get("message_id"))
 
     msg = await MessageService.delete_message(
         db=db, message_id=message_id, user_id=user.id

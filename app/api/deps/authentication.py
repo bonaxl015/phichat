@@ -2,7 +2,7 @@ from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.utils.jwt import decode_access_token
+from app.utils.jwt_util import decode_access_token
 from app.database.connection import get_db
 from app.services.user_service import UserService
 from app.core.exceptions import UnauthorizedException

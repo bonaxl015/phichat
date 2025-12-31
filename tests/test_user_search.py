@@ -1,7 +1,7 @@
 import pytest
 from fastapi import status
 from app.services.user_service import UserService
-from app.utils.jwt import create_access_token
+from app.utils.jwt_util import create_access_token
 
 
 @pytest.mark.asyncio

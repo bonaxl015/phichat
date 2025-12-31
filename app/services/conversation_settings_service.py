@@ -1,13 +1,16 @@
+import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models.conversation_settings import ConversationSettings
-from app.utils.uuid import to_uuid
+from app.models.conversation_settings_model import ConversationSettings
+from app.utils.uuid_util import to_uuid
 
 
 class ConversationSettingsService:
 
     @staticmethod
-    async def get_or_create(db: AsyncSession, conversation_id: str, user_id: str):
+    async def get_or_create(
+        db: AsyncSession, conversation_id: str | uuid.UUID, user_id: str | uuid.UUID
+    ):
         conversation_uuid = await to_uuid(conversation_id)
         user_uuid = await to_uuid(user_id)
 
@@ -37,7 +40,10 @@ class ConversationSettingsService:
 
     @staticmethod
     async def toggle_mute(
-        db: AsyncSession, conversation_id: str, user_id: str, mute: bool
+        db: AsyncSession,
+        conversation_id: str | uuid.UUID,
+        user_id: str | uuid.UUID,
+        mute: bool,
     ):
         settings = await ConversationSettingsService.get_or_create(
             db=db, conversation_id=conversation_id, user_id=user_id
@@ -51,7 +57,10 @@ class ConversationSettingsService:
 
     @staticmethod
     async def toggle_pin(
-        db: AsyncSession, conversation_id: str, user_id: str, pin: bool
+        db: AsyncSession,
+        conversation_id: str | uuid.UUID,
+        user_id: str | uuid.UUID,
+        pin: bool,
     ):
         settings = await ConversationSettingsService.get_or_create(
             db=db, conversation_id=conversation_id, user_id=user_id

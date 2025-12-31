@@ -1,24 +1,25 @@
+import uuid
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_, func
 
-from app.models.conversation import Conversation
-from app.models.unread import ConversationUnread
-from app.models.conversation_settings import ConversationSettings
-from app.models.message import Message
+from app.models.conversation_model import Conversation
+from app.models.unread_model import ConversationUnread
+from app.models.conversation_settings_model import ConversationSettings
+from app.models.message_model import Message
 from app.core.exceptions import AppException, DatabaseException
 from app.services.conversation_settings_service import ConversationSettingsService
 from app.services.unread_service import UnreadService
 from app.services.user_service import UserService
 from app.websocket.state import connection_manager
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 
 class ConversationService:
 
     @staticmethod
     async def get_or_create_conversation(
-        db: AsyncSession, user1_id: str, user2_id: str
+        db: AsyncSession, user1_id: str | uuid.UUID, user2_id: str | uuid.UUID
     ):
         try:
             user1_uuid = await to_uuid(user1_id)
@@ -55,7 +56,7 @@ class ConversationService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def list_conversation_full(db: AsyncSession, user_id: str):
+    async def list_conversation_full(db: AsyncSession, user_id: str | uuid.UUID):
         user_uuid = await to_uuid(user_id)
 
         last_msg_subq = (
@@ -117,7 +118,7 @@ class ConversationService:
         return result.all()
 
     @staticmethod
-    async def get_by_id(db: AsyncSession, conversation_id: str):
+    async def get_by_id(db: AsyncSession, conversation_id: str | uuid.UUID):
         conversation_uuid = await to_uuid(conversation_id)
 
         stmt = select(Conversation).where(Conversation.id == conversation_uuid)
@@ -127,7 +128,7 @@ class ConversationService:
 
     @staticmethod
     async def get_conversation_info(
-        db: AsyncSession, conversation_id: str, user_id: str
+        db: AsyncSession, conversation_id: str | uuid.UUID, user_id: str | uuid.UUID
     ):
         user_uuid = await to_uuid(user_id)
         conversation_uuid = await to_uuid(conversation_id)

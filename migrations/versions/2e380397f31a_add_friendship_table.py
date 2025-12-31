@@ -11,7 +11,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-from app.database.types import GUID
+from app.database.custom_types import GUID
 
 # revision identifiers, used by Alembic.
 revision: str = "2e380397f31a"

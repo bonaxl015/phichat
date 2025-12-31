@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.conversation import ConversationRead
+from app.schemas.conversation_schema import ConversationRead
 from app.services.conversation_service import ConversationService
 from app.services.conversation_settings_service import ConversationSettingsService
-from app.api.deps.auth import get_current_user
+from app.api.deps.authentication import get_current_user
 from app.database.connection import get_db
 from app.core.exceptions import AppException
 

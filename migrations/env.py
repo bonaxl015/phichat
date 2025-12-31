@@ -7,12 +7,12 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from app.database.base import Base
 from app.core.config import settings
 
-from app.models.user import User  # noqa
-from app.models.friendship import Friendship  # noqa
-from app.models.conversation import Conversation  # noqa
-from app.models.message import Message  # noqa
-from app.models.unread import ConversationUnread  # noqa
-from app.models.conversation_settings import ConversationSettings  # noqa: F401
+from app.models.user_model import User  # noqa
+from app.models.friendship_model import Friendship  # noqa
+from app.models.conversation_model import Conversation  # noqa
+from app.models.message_model import Message  # noqa
+from app.models.unread_model import ConversationUnread  # noqa
+from app.models.conversation_settings_model import ConversationSettings  # noqa: F401
 
 
 config = context.config

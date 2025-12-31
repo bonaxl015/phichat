@@ -1,7 +1,7 @@
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.conversation import Conversation
-from app.models.user import User
+from app.models.conversation_model import Conversation
+from app.models.user_model import User
 from app.websocket.manager import ConnectionManager
 from app.services.message_service import MessageService
 from app.services.unread_service import UnreadService
@@ -17,7 +17,7 @@ async def handle_send_message(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    content = data.get("content")
+    content: str = str(data.get("content"))
 
     msg = await MessageService.send_message(
         db,

@@ -6,7 +6,7 @@ from app.websocket.events import dispatch_event
 from app.services.conversation_service import ConversationService
 from app.services.message_service import MessageService
 from app.database.connection import get_db
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 router = APIRouter()
 
@@ -47,7 +47,7 @@ async def websocket_chat(
     try:
         while True:
             data = await websocket.receive_json()
-            event_name = data.get("event")
+            event_name: str = str(data.get("event"))
 
             await dispatch_event(
                 event_name=event_name,

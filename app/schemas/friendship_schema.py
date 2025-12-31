@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, UUID4
-from app.models.friendship import FriendshipStatus
+from app.models.friendship_model import FriendshipStatus
 
 
 class FriendshipRead(BaseModel):
