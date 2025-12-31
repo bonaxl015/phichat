@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_, and_, func
+from sqlalchemy import select, or_, and_, func, UUID
 
 from app.models.conversation_model import Conversation
 from app.models.unread_model import ConversationUnread
@@ -18,7 +18,7 @@ class ConversationService:
 
     @staticmethod
     async def get_or_create_conversation(
-        db: AsyncSession, user1_id: str, user2_id: str
+        db: AsyncSession, user1_id: str | UUID, user2_id: str | UUID
     ):
         try:
             user1_uuid = await to_uuid(user1_id)
@@ -55,7 +55,7 @@ class ConversationService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def list_conversation_full(db: AsyncSession, user_id: str):
+    async def list_conversation_full(db: AsyncSession, user_id: str | UUID):
         user_uuid = await to_uuid(user_id)
 
         last_msg_subq = (
@@ -117,7 +117,7 @@ class ConversationService:
         return result.all()
 
     @staticmethod
-    async def get_by_id(db: AsyncSession, conversation_id: str):
+    async def get_by_id(db: AsyncSession, conversation_id: str | UUID):
         conversation_uuid = await to_uuid(conversation_id)
 
         stmt = select(Conversation).where(Conversation.id == conversation_uuid)
@@ -127,7 +127,7 @@ class ConversationService:
 
     @staticmethod
     async def get_conversation_info(
-        db: AsyncSession, conversation_id: str, user_id: str
+        db: AsyncSession, conversation_id: str | UUID, user_id: str | UUID
     ):
         user_uuid = await to_uuid(user_id)
         conversation_uuid = await to_uuid(conversation_id)

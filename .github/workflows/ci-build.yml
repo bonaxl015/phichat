@@ -32,7 +32,4 @@ jobs:
       - name: Run static type check
         run: |
           pip install mypy
-          pwd
-          tree -a app/utils
-          grep -R "PYTHONPATH" -n .
           mypy app

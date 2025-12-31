@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, UUID
 
 from app.models.user_model import User
 from app.utils.hashing_util import hash_password, verify_password
@@ -54,7 +54,7 @@ class UserService:
             DatabaseException(str(e))
 
     @staticmethod
-    async def get_user_by_id(db: AsyncSession, user_id: str):
+    async def get_user_by_id(db: AsyncSession, user_id: str | UUID):
         user_uuid = await to_uuid(user_id)
 
         try:
@@ -85,7 +85,7 @@ class UserService:
 
     @staticmethod
     async def search_users(
-        db: AsyncSession, query: str, exclude_user_id: str, limit: int = 20
+        db: AsyncSession, query: str, exclude_user_id: str | UUID, limit: int = 20
     ):
         try:
             if not query or len(query.strip()) == 0:

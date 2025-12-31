@@ -17,7 +17,7 @@ async def handle_send_message(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    content = data.get("content")
+    content: str = data.get("content")
 
     msg = await MessageService.send_message(
         db,

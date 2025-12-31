@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.conversation_model import Conversation
@@ -17,10 +18,10 @@ async def handle_reconnect(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    last_ts = data.get("last_message_at")
+    last_ts = datetime(data.get("last_message_at"))
 
     missed = await MessageService.list_messages_since(
-        db, user_id=user.id, last_ts=last_ts
+        db, user_id=user.id, timestamp=last_ts
     )
 
     await websocket.send_json(
@@ -48,7 +49,7 @@ async def handle_resume_conversation(
     manager: ConnectionManager,
     db: AsyncSession,
 ):
-    new_conv_id = await to_uuid(data.get("conversation_id"))
+    new_conv_id: str = await to_uuid(data.get("conversation_id"))
 
     manager.join_conversation(websocket=websocket, conversation_id=str(new_conv_id))
 

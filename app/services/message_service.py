@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, UUID
 
 from app.models.message_model import Message, MessageStatus
 from app.models.conversation_model import Conversation
@@ -13,14 +13,14 @@ class MessageService:
 
     @staticmethod
     async def can_user_access_conversation(
-        db: AsyncSession, conversation: Conversation, user_id: str
+        db: AsyncSession, conversation: Conversation, user_id: str | UUID
     ):
         user_uuid = await to_uuid(user_id)
         return conversation.user1_id == user_uuid or conversation.user2_id == user_uuid
 
     @staticmethod
     async def send_message(
-        db: AsyncSession, conversation: Conversation, sender_id: str, content: str
+        db: AsyncSession, conversation: Conversation, sender_id: str | UUID, content: str
     ):
         try:
             conv_uuid = await to_uuid(conversation.id)
@@ -55,7 +55,7 @@ class MessageService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def list_messages(db: AsyncSession, conv_id: str, limit: int = 50):
+    async def list_messages(db: AsyncSession, conv_id: str | UUID, limit: int = 50):
         conv_uuid = await to_uuid(conv_id)
 
         stmt = (
@@ -69,7 +69,7 @@ class MessageService:
         return result.scalars().all()
 
     @staticmethod
-    async def mark_delivered(db: AsyncSession, message_id: str, user_id: str):
+    async def mark_delivered(db: AsyncSession, message_id: str | UUID, user_id: str | UUID):
         try:
             message_uuid = await to_uuid(message_id)
             user_uuid = await to_uuid(user_id)
@@ -96,7 +96,7 @@ class MessageService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def mark_read(db: AsyncSession, message_id: str, user_id: str):
+    async def mark_read(db: AsyncSession, message_id: str | UUID, user_id: str | UUID):
         try:
             message_uuid = await to_uuid(message_id)
             user_uuid = await to_uuid(user_id)
@@ -124,7 +124,7 @@ class MessageService:
 
     @staticmethod
     async def edit_message(
-        db: AsyncSession, message_id: str, user_id: str, new_content: str
+        db: AsyncSession, message_id: str | UUID, user_id: str | UUID, new_content: str
     ):
         message_uuid = await to_uuid(message_id)
         user_uuid = await to_uuid(user_id)
@@ -150,7 +150,7 @@ class MessageService:
         return msg
 
     @staticmethod
-    async def delete_message(db: AsyncSession, message_id: str, user_id: str):
+    async def delete_message(db: AsyncSession, message_id: str | UUID, user_id: str | UUID):
         message_uuid = await to_uuid(message_id)
         user_uuid = await to_uuid(user_id)
 
@@ -172,7 +172,7 @@ class MessageService:
         return msg
 
     @staticmethod
-    async def list_messages_since(db: AsyncSession, user_id: str, timestamp: datetime):
+    async def list_messages_since(db: AsyncSession, user_id: str | UUID, timestamp: datetime):
         stmt = select(Message).where(Message.sent_at > timestamp)
         result = await db.execute(stmt)
         return result.scalars().all()
