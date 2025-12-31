@@ -3,13 +3,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.conversation_model import Conversation
 from app.models.user_model import User
 from app.websocket.manager import ConnectionManager
-from app.websocket.handlers.typing_handler import handle_typing_start, handle_typing_stop
+from app.websocket.handlers.typing_handler import (
+    handle_typing_start,
+    handle_typing_stop,
+)
 from app.websocket.handlers.messaging_handler import handle_send_message
 from app.websocket.handlers.receipts_handler import (
     handle_message_delivered,
     handle_message_read,
 )
-from app.websocket.handlers.editing_handler import handle_delete_message, handle_edit_message
+from app.websocket.handlers.editing_handler import (
+    handle_delete_message,
+    handle_edit_message,
+)
 
 
 event_handlers = {

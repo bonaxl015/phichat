@@ -1,5 +1,6 @@
+import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_, and_, UUID
+from sqlalchemy import select, or_, and_
 from datetime import datetime, UTC
 
 from app.models.friendship_model import Friendship, FriendshipStatus
@@ -11,7 +12,9 @@ from app.websocket.state import notification_manager
 class FriendService:
 
     @staticmethod
-    async def send_request(db: AsyncSession, requester_id: str | UUID, receiver_id: str | UUID):
+    async def send_request(
+        db: AsyncSession, requester_id: str | uuid.UUID, receiver_id: str | uuid.UUID
+    ):
         try:
             requester_uuid = await to_uuid(requester_id)
             receiver_uuid = await to_uuid(receiver_id)
@@ -67,7 +70,9 @@ class FriendService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def accept_request(db: AsyncSession, friendship_id: str | UUID, user_id: str | UUID):
+    async def accept_request(
+        db: AsyncSession, friendship_id: str | uuid.UUID, user_id: str | uuid.UUID
+    ):
         try:
             friendship_uuid = await to_uuid(friendship_id)
             user_uuid = await to_uuid(user_id)
@@ -104,7 +109,9 @@ class FriendService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def reject_request(db: AsyncSession, friendship_id: str | UUID, user_id: str | UUID):
+    async def reject_request(
+        db: AsyncSession, friendship_id: str | uuid.UUID, user_id: str | uuid.UUID
+    ):
         try:
             friendship_uuid = await to_uuid(friendship_id)
             user_uuid = await to_uuid(user_id)
@@ -141,7 +148,7 @@ class FriendService:
             raise DatabaseException(str(e))
 
     @staticmethod
-    async def list_friends(db: AsyncSession, user_id: str | UUID):
+    async def list_friends(db: AsyncSession, user_id: str | uuid.UUID):
         user_uuid = await to_uuid(user_id)
 
         stmt = select(Friendship).where(
@@ -158,7 +165,7 @@ class FriendService:
         return result.scalars().all()
 
     @staticmethod
-    async def list_pending(db: AsyncSession, user_id: str | UUID):
+    async def list_pending(db: AsyncSession, user_id: str | uuid.UUID):
         user_uuid = await to_uuid(user_id)
 
         stmt = select(Friendship).where(

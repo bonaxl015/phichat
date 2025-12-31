@@ -1,5 +1,6 @@
+import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, UUID
+from sqlalchemy import select
 
 from app.models.conversation_model import Conversation
 from app.models.unread_model import ConversationUnread
@@ -9,7 +10,9 @@ from app.utils.uuid_util import to_uuid
 class UnreadService:
 
     @staticmethod
-    async def ensure_entry(db: AsyncSession, conversation_id: str | UUID, user_id: str | UUID):
+    async def ensure_entry(
+        db: AsyncSession, conversation_id: str | uuid.UUID, user_id: str | uuid.UUID
+    ):
         conversation_uuid = await to_uuid(conversation_id)
         user_uuid = await to_uuid(user_id)
 
@@ -34,7 +37,7 @@ class UnreadService:
 
     @staticmethod
     async def increment(
-        db: AsyncSession, conversation: Conversation, receiver_id: str | UUID
+        db: AsyncSession, conversation: Conversation, receiver_id: str | uuid.UUID
     ):
         receiver_uuid = await to_uuid(receiver_id)
         entry = await UnreadService.ensure_entry(
@@ -47,7 +50,9 @@ class UnreadService:
         return entry
 
     @staticmethod
-    async def reset(db: AsyncSession, conversation_id: str | UUID, user_id: str | UUID):
+    async def reset(
+        db: AsyncSession, conversation_id: str | uuid.UUID, user_id: str | uuid.UUID
+    ):
         conversation_uuid = await to_uuid(conversation_id)
         user_uuid = await to_uuid(user_id)
 
@@ -61,7 +66,9 @@ class UnreadService:
         return entry
 
     @staticmethod
-    async def get_unread(db: AsyncSession, conversation_id: str | UUID, user_id: str | UUID):
+    async def get_unread(
+        db: AsyncSession, conversation_id: str | uuid.UUID, user_id: str | uuid.UUID
+    ):
         conversation_uuid = await to_uuid(conversation_id)
         user_uuid = await to_uuid(user_id)
 

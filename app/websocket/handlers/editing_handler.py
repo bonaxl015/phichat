@@ -1,4 +1,3 @@
-import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.message_service import MessageService
 from fastapi import WebSocket
