@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, UUID
 
-from app.models.conversation import Conversation
-from app.models.unread import ConversationUnread
+from app.models.conversation_model import Conversation
+from app.models.unread_model import ConversationUnread
 from app.utils.uuid import to_uuid
 
 

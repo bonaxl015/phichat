@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, UUID4
-from app.models.message import MessageStatus
+from app.models.message_model import MessageStatus
 from datetime import datetime
 
 

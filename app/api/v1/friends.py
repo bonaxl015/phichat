@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.friendship import FriendshipRead
+from app.schemas.friendship_schema import FriendshipRead
 from app.services.friend_service import FriendService
 from app.api.deps.authentication import get_current_user
 from app.database.connection import get_db

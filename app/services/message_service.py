@@ -2,8 +2,8 @@ from datetime import datetime, UTC
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.models.message import Message, MessageStatus
-from app.models.conversation import Conversation
+from app.models.message_model import Message, MessageStatus
+from app.models.conversation_model import Conversation
 from app.services.unread_service import UnreadService
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid

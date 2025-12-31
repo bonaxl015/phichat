@@ -1,7 +1,7 @@
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.conversation import Conversation
-from app.models.user import User
+from app.models.conversation_model import Conversation
+from app.models.user_model import User
 from app.websocket.manager import ConnectionManager
 from app.websocket.handlers.typing_handler import handle_typing_start, handle_typing_stop
 from app.websocket.handlers.messaging_handler import handle_send_message

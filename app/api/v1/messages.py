@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps.authentication import get_current_user
 from app.database.connection import get_db
-from app.schemas.message import MessageRead, MessageCreate
+from app.schemas.message_schema import MessageRead, MessageCreate
 from app.services.conversation_service import ConversationService
 from app.services.message_service import MessageService
 from app.core.exceptions import AppException

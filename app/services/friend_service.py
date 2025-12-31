@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_
 from datetime import datetime, UTC
 
-from app.models.friendship import Friendship, FriendshipStatus
+from app.models.friendship_model import Friendship, FriendshipStatus
 from app.core.exceptions import AppException, DatabaseException
 from app.utils.uuid import to_uuid
 from app.websocket.state import notification_manager

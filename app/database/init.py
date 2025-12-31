@@ -2,12 +2,12 @@ import asyncio
 from app.database.connection import engine
 from app.database.base import Base
 
-from app.models.user import User  # noqa: F401
-from app.models.friendship import Friendship  # noqa: F401
-from app.models.conversation import Conversation  # noqa: F401
-from app.models.message import Message  # noqa: F401
-from app.models.unread import ConversationUnread  # noqa: F401
-from app.models.conversation_settings import ConversationSettings  # noqa: F401
+from app.models.user_model import User  # noqa: F401
+from app.models.friendship_model import Friendship  # noqa: F401
+from app.models.conversation_model import Conversation  # noqa: F401
+from app.models.message_model import Message  # noqa: F401
+from app.models.unread_model import ConversationUnread  # noqa: F401
+from app.models.conversation_settings_model import ConversationSettings  # noqa: F401
 
 
 async def init_db():

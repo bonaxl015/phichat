@@ -2,10 +2,10 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, and_, func
 
-from app.models.conversation import Conversation
-from app.models.unread import ConversationUnread
-from app.models.conversation_settings import ConversationSettings
-from app.models.message import Message
+from app.models.conversation_model import Conversation
+from app.models.unread_model import ConversationUnread
+from app.models.conversation_settings_model import ConversationSettings
+from app.models.message_model import Message
 from app.core.exceptions import AppException, DatabaseException
 from app.services.conversation_settings_service import ConversationSettingsService
 from app.services.unread_service import UnreadService

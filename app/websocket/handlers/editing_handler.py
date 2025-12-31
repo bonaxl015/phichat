@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.message_service import MessageService
 from fastapi import WebSocket
-from app.models.conversation import Conversation
-from app.models.user import User
+from app.models.conversation_model import Conversation
+from app.models.user_model import User
 from app.websocket.manager import ConnectionManager
 from app.websocket.state import notification_manager
 
