@@ -5,7 +5,7 @@ from app.schemas.user_schema import UserCreate, UserRead
 from app.services.user_service import UserService
 from app.database.connection import get_db
 from app.schemas.auth_schema import TokenResponse, LoginRequest
-from app.utils.jwt import create_access_token
+from app.utils.jwt_util import create_access_token
 from app.core.exceptions import UnauthorizedException
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])

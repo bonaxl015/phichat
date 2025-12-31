@@ -3,7 +3,7 @@ from sqlalchemy import select, UUID
 
 from app.models.conversation_model import Conversation
 from app.models.unread_model import ConversationUnread
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 
 class UnreadService:

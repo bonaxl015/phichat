@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.conversation_settings_model import ConversationSettings
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 
 class ConversationSettingsService:

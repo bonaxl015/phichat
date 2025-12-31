@@ -7,7 +7,7 @@ from app.schemas.message_schema import MessageRead, MessageCreate
 from app.services.conversation_service import ConversationService
 from app.services.message_service import MessageService
 from app.core.exceptions import AppException
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 router = APIRouter(prefix="/api/v1/messages", tags=["Messages"])
 

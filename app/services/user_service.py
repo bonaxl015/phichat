@@ -3,9 +3,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select, or_
 
 from app.models.user_model import User
-from app.utils.hashing import hash_password, verify_password
+from app.utils.hashing_util import hash_password, verify_password
 from app.core.exceptions import DatabaseException, AppException
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 
 class UserService:

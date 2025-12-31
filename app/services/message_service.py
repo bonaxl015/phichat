@@ -6,7 +6,7 @@ from app.models.message_model import Message, MessageStatus
 from app.models.conversation_model import Conversation
 from app.services.unread_service import UnreadService
 from app.core.exceptions import AppException, DatabaseException
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 
 class MessageService:

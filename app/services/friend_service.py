@@ -4,7 +4,7 @@ from datetime import datetime, UTC
 
 from app.models.friendship_model import Friendship, FriendshipStatus
 from app.core.exceptions import AppException, DatabaseException
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 from app.websocket.state import notification_manager
 
 

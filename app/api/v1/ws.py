@@ -6,7 +6,7 @@ from app.websocket.events import dispatch_event
 from app.services.conversation_service import ConversationService
 from app.services.message_service import MessageService
 from app.database.connection import get_db
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 router = APIRouter()
 

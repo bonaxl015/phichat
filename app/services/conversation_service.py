@@ -11,7 +11,7 @@ from app.services.conversation_settings_service import ConversationSettingsServi
 from app.services.unread_service import UnreadService
 from app.services.user_service import UserService
 from app.websocket.state import connection_manager
-from app.utils.uuid import to_uuid
+from app.utils.uuid_util import to_uuid
 
 
 class ConversationService:
